@@ -1,0 +1,200 @@
+'''Desafio de Ciência de Dados: Exploração, Transformação e Criação de Estatísticas
+
+Neste desafio, enfrentamos a tarefa de explorar, transformar e criar estatísticas a partir de um conjunto de dados em um arquivo Excel. O objetivo era aplicar conceitos de Ciência de Dados e construir um pipeline ETL (Extração, Transformação e Carga) eficaz.
+
+Passo 1: Carregando os Dados
+Começamos carregando os dados do arquivo Excel usando a biblioteca Pandas. Isso envolveu especificar o caminho completo para o arquivo, o qual foi carregado em um DataFrame.
+
+Passo 2: Limpeza de Dados
+Nosso próximo passo foi garantir que os dados estivessem limpos e prontos para análise. Primeiro, removemos qualquer linha que contivesse valores ausentes, garantindo que nossa análise não fosse afetada por dados incompletos. Também renomeamos a coluna "Nome Cliente" para "Clientes" para tornar o nome mais claro.
+
+Passo 3: Divisão de Localidade
+Uma tarefa interessante foi dividir a coluna "Localidade" em duas novas colunas: "Localidade" e "Continente". Isso nos permitiu analisar os dados de acordo com a localização geográfica e o continente.
+
+Passo 4: Cálculo de Faturamento
+Uma parte fundamental da análise de vendas é o cálculo do faturamento. Multiplicamos o "Preço Unitário" pelo "Quantidade Vendida" para obter o faturamento de cada transação, criando uma nova coluna chamada "Faturamento".
+
+Passo 5: Estatísticas de Negócios
+Após a preparação dos dados, realizamos análises estatísticas para obter insights valiosos. Calculamos as 10 maiores somas de faturamento para clientes, produtos, países e marcas. Isso nos ajudou a identificar os principais impulsionadores de receita em diferentes aspectos do negócio.
+
+Passo 6: Visualização dos Dados
+
+Nesta etapa, utilizamos diversos gráficos para visualizar nossos dados tratados:
+
+Gráfico de Barras - Top 10 Clientes: Identificamos os principais clientes em termos de faturamento.
+
+Gráfico de Barras - Top 10 Produtos: Destacamos os produtos mais vendidos com base no valor total.
+
+Gráfico de Barras - Top 10 Países: Visualizamos os países que geram mais faturamento.
+
+Gráfico de Barras - Top 10 Marcas: Mostramos as marcas mais vendidas com base no valor total.
+
+Gráfico de Linhas - Relação Países x Produtos: Analisamos como os produtos mais vendidos se relacionam com os principais países em termos de faturamento.
+
+Essas visualizações resumidas ajudam a entender aspectos cruciais do nosso conjunto de dados, facilitando a tomada de decisões de negócios fundamentadas.
+
+
+Ao finalizar esse desafio, construímos um pipeline ETL completo, desde a extração até a criação de estatísticas de negócios. Essa abordagem pode ser aplicada a vários conjuntos de dados e setores, tornando-se uma habilidade valiosa para qualquer cientista de dados. Além disso, a documentação adequada do código garante que outros possam entender e usar nosso trabalho.
+
+Este projeto demonstra a capacidade de transformar dados brutos em informações úteis e valiosas, uma habilidade fundamental em Ciência de Dados.
+'''
+
+
+# Importando a biblioteca pandas para manipulação de dados
+import pandas as pd
+
+# Caminho completo para o arquivo Excel de entrada
+caminho_arquivo = r'C:\Users\Maurício Pavan\Python\VENDAS\VENDAS.xlsx'
+
+# Carregando os dados do arquivo Excel em um DataFrame
+df = pd.read_excel(caminho_arquivo)
+
+# Imprime mensagem indicando o sucesso do carregamento
+print("\nPasso 1: Dados carregados com sucesso!\n")
+
+# Removendo linhas que contenham valores ausentes (NaN)
+df = df.dropna()
+print("Passo 3: Linhas em branco removidas com sucesso!\n")
+
+# Renomeando a coluna "Nome Cliente" para "Clientes"
+df = df.rename(columns={"Nome Cliente": "Clientes"})
+print("Passo 4: Coluna Nome Cliente renomeada para Clientes com sucesso!\n")
+
+# Dividindo a coluna "Localidade" em "Localidade" e "Continente"
+df[['Localidade', 'Continente']] = df['Localidade'].str.split(' - ', n=1, expand=True)
+print("Passo 5: Coluna Localidade dividida em Localidade e Continente com sucesso!\n")
+
+# Calculando a coluna "Faturamento" como o produto de "PrecoUnitario" e "Qtd. Vendida"
+df['Faturamento'] = df['PrecoUnitario'] * df['Qtd. Vendida']
+print("Passo 8: Coluna Faturamento calculada com sucesso!\n")
+
+# Verificando os tipos de dados das colunas e imprimindo
+print(df.dtypes, "\n")
+
+# Exibindo as primeiras linhas do DataFrame
+print(df.head(), "\n")
+
+# Caminho completo para a pasta de destino para salvar o arquivo tratado
+caminho_destino = r'C:\Users\Maurício Pavan\Python\VENDAS'
+
+# Salvando o DataFrame de volta para um arquivo Excel
+df.to_excel(f"{caminho_destino}\\VENDAS_tratado.xlsx", index=False)
+print("DataFrame tratado salvo com sucesso em VENDAS_tratado.xlsx \n")
+
+# Caminho completo para o arquivo Excel tratado
+caminho_arquivo = r'C:\Users\Maurício Pavan\Python\VENDAS\VENDAS_tratado.xlsx'
+
+# Carregando os dados do arquivo Excel tratado em um novo DataFrame
+df = pd.read_excel(caminho_arquivo)
+
+# Estatísticas para os 10 maiores clientes
+top_10_clientes = df.groupby('Clientes')['Faturamento'].sum().nlargest(10)
+
+# Estatísticas para os 10 maiores produtos
+top_10_produtos = df.groupby('Produto')['Faturamento'].sum().nlargest(10)
+
+# Estatísticas para os 10 maiores países
+top_10_paises = df.groupby('Localidade')['Faturamento'].sum().nlargest(10)
+
+# Estatísticas para as 10 maiores marcas
+top_10_marcas = df.groupby('Marca')['Faturamento'].sum().nlargest(10)
+
+# Imprimindo os resultados das estatísticas
+print("Top 10 Clientes:")
+print(top_10_clientes)
+print("\nTop 10 Produtos:")
+print(top_10_produtos)
+print("\nTop 10 Países:")
+print(top_10_paises)
+print("\nTop 10 Marcas:")
+print(top_10_marcas)
+
+
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Carregando os dados do arquivo Excel tratado
+caminho_arquivo = r'C:\Users\Maurício Pavan\Python\VENDAS\VENDAS_tratado.xlsx'
+df = pd.read_excel(caminho_arquivo)
+
+# Definindo uma paleta de cores personalizada para o Gráfico 1
+colors = sns.color_palette("husl", len(top_10_clientes))
+
+# Gráfico de Barras para os 10 maiores clientes por faturamento com cores personalizadas
+print("Gráfico 1: Top 10 Clientes por Faturamento")
+plt.figure(figsize=(12, 6))
+plt.bar(top_10_clientes.index, top_10_clientes.values, color=colors)
+plt.xlabel('Clientes')
+plt.ylabel('Faturamento')
+plt.title('Top 10 Clientes por Faturamento')
+plt.xticks(rotation=45)
+plt.show()
+
+
+# Gráfico de Pizza para a distribuição de faturamento por produtos
+print("Gráfico 2: Distribuição de Faturamento por Produto")
+top_10_produtos = df.groupby('Produto')['Faturamento'].sum().nlargest(10)
+plt.figure(figsize=(8, 8))
+plt.pie(top_10_produtos, labels=top_10_produtos.index, autopct='%1.1f%%')
+plt.title('Distribuição de Faturamento por Produto')
+plt.show()
+
+# Gráfico de Barras para as 10 Maiores Vendas por País
+top_10_paises = df.groupby('Localidade')['Faturamento'].sum().nlargest(10)
+print("\nGráfico 3: 10 Maiores Vendas por País")
+plt.figure(figsize=(12, 6))
+sns.barplot(x=top_10_paises.index, y=top_10_paises.values, palette='viridis_r')
+plt.xlabel('Localidade')
+plt.ylabel('Faturamento')
+plt.title('10 Maiores Vendas por País')
+plt.xticks(rotation=45)
+plt.show()
+
+
+
+# Gráfico de Barras para as 10 Marcas Mais Vendidas por Valor
+top_10_marcas = df.groupby('Marca')['Faturamento'].sum().nlargest(10)
+print("\nGráfico 4: 10 Marcas Mais Vendidas por Valor")
+plt.figure(figsize=(12, 6))
+sns.barplot(x=top_10_marcas.index, y=top_10_marcas.values, palette='magma')
+plt.xlabel('Marca')
+plt.ylabel('Faturamento')
+plt.title('10 Marcas Mais Vendidas por Valor')
+plt.xticks(rotation=45)
+plt.show()
+
+
+
+# Gráfico de Barras para as 10 Marcas Mais Vendidas por Quantidade
+top_10_marcas_quantidade = df.groupby('Marca')['Qtd. Vendida'].sum().nlargest(10)
+print("\nGráfico 5: 10 Marcas Mais Vendidas por Quantidade")
+plt.figure(figsize=(12, 6))
+sns.barplot(x=top_10_marcas_quantidade.index, y=top_10_marcas_quantidade.values, palette='viridis_r')
+plt.xlabel('Marca')
+plt.ylabel('Quantidade Vendida')
+plt.title('10 Marcas Mais Vendidas por Quantidade')
+plt.xticks(rotation=45)
+plt.show()
+
+
+
+
+# Gráfico de Linhas para a Relação entre os Top 10 Países (X) e os Top 5 Produtos (Y)
+top_10_countries = df.groupby('Localidade')['Faturamento'].sum().nlargest(10)
+top_5_products = df.groupby('Produto')['Faturamento'].sum().nlargest(5)
+df_filtered = df[df['Localidade'].isin(top_10_countries.index) & df['Produto'].isin(top_5_products.index)]
+pivot_df = df_filtered.pivot_table(index='Localidade', columns='Produto', values='Faturamento', aggfunc='sum', fill_value=0)
+print("\nGráfico 6: Gráfico de Linhas para a Relação entre os Top 10 Países (X) e os Top 5 Produtos (Y)")
+plt.figure(figsize=(12, 6))
+sns.lineplot(data=pivot_df, dashes=False, markers=True)
+plt.xlabel('Localidade (Top 10 Países)')
+plt.ylabel('Faturamento')
+plt.title('Relação entre os Top 10 Países (X) e os Top 5 Produtos (Y)')
+plt.xticks(rotation=45)
+plt.legend(title='Produto')
+plt.show()
+
+
+
+
